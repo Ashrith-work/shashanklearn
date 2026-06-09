@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-ink-900 text-white antialiased;
+    /* Prevent rubber-band / pull-to-refresh on the full-screen feed */
+    overscroll-behavior: none;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbars on the snap feed while keeping scroll behavior */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
