@@ -16,6 +16,9 @@ import QuizModal from '@/features/quiz/components/QuizModal';
 const PRELOAD_AHEAD = 2;
 const PRELOAD_BEHIND = 1;
 
+/** Pop a quiz interstitial after every N videos viewed. */
+const QUIZ_EVERY_N_VIDEOS = 4;
+
 export default function FeedPage() {
   const { videos, loading, error } = useFeed();
   const { isAdmin } = useAuth();
@@ -29,8 +32,17 @@ export default function FeedPage() {
   const [commentsFor, setCommentsFor] = useState<FeedVideo | null>(null);
   const [quizFor, setQuizFor] = useState<FeedVideo | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // Count distinct videos viewed so we can pop a quiz every N of them.
+  const viewCountRef = useRef(0);
+  const lastViewedIdxRef = useRef<number | null>(null);
 
-  // A guided video finishing pops its quiz (free videos never have one).
+  // Pick a video that actually has a quiz attached (quizzes live on guided
+  // videos); fall back to the given one so the modal can self-close if none.
+  function quizVideoFor(current: FeedVideo): FeedVideo {
+    return videos.find((v) => v.type === 'guided') ?? current;
+  }
+
+  // A guided video finishing also pops its quiz (free videos never have one).
   function handleVideoEnded(video: FeedVideo) {
     if (video.type === 'guided') setQuizFor(video);
   }
@@ -53,10 +65,20 @@ export default function FeedPage() {
     return () => observer.disconnect();
   }, [videos.length, setActiveIndex]);
 
-  // Log view duration whenever the active video changes.
+  // Log view duration whenever the active video changes, and pop a quiz
+  // interstitial after every QUIZ_EVERY_N_VIDEOS distinct videos viewed.
   useEffect(() => {
     const v = videos[activeIndex];
     markActive(v ? v.id : null);
+
+    if (v && activeIndex !== lastViewedIdxRef.current) {
+      lastViewedIdxRef.current = activeIndex;
+      viewCountRef.current += 1;
+      if (viewCountRef.current % QUIZ_EVERY_N_VIDEOS === 0) {
+        setQuizFor(quizVideoFor(v));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex, videos, markActive]);
 
   if (loading) return <Spinner fullScreen label="Loading your feed…" />;
