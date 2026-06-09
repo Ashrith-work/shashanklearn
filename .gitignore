@@ -17,6 +17,10 @@ dist-ssr
 vite.config.js
 vite.config.d.ts
 
+# Capacitor — the native android project is generated in CI, not committed
+/android
+/ios
+
 # Env — never commit real secrets
 .env
 .env.*
