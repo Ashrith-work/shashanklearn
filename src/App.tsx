@@ -8,6 +8,7 @@ import LivePage from '@/features/live/pages/LivePage';
 import ProfilePage from '@/features/profile/pages/ProfilePage';
 import AdminPage from '@/features/admin/pages/AdminPage';
 import UpgradeModal from '@/features/premium/components/UpgradeModal';
+import { DEMO } from '@/demo/demo';
 
 export default function App() {
   // Initialize auth session + profile once at the app root.
@@ -61,6 +62,12 @@ export default function App() {
 
     {/* Global premium upgrade modal — openable from any "Go Premium" CTA. */}
     <UpgradeModal />
+
+    {DEMO && (
+      <div className="pointer-events-none fixed bottom-3 left-1/2 z-[70] -translate-x-1/2 rounded-full bg-black/70 px-3 py-1 text-[11px] font-medium text-white/80 backdrop-blur">
+        Demo mode · sample data, resets on reload
+      </div>
+    )}
     </>
   );
 }

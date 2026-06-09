@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useFeedStore } from '@/store/feedStore';
+import { DEMO, demoVideos } from '@/demo/demo';
 
 /**
  * Loads the feed from the `feed_videos` view (guided URLs already masked for
@@ -13,6 +14,11 @@ export function useFeed() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (DEMO) {
+      setVideos(demoVideos);
+      setLoading(false);
+      return;
+    }
     let active = true;
     (async () => {
       const { data, error } = await supabase

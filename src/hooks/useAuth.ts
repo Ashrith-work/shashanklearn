@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
+import { DEMO, demoProfile, demoSession } from '@/demo/demo';
 import type { Profile } from '@/types';
 
 /**
@@ -12,6 +13,14 @@ export function useAuthBootstrap() {
   const { setSession, setProfile, setLoading } = useAuthStore();
 
   useEffect(() => {
+    // Demo mode: sign in as the mock user, no Supabase calls.
+    if (DEMO) {
+      setSession(demoSession);
+      setProfile(demoProfile);
+      setLoading(false);
+      return;
+    }
+
     let active = true;
 
     async function loadProfile(userId: string): Promise<Profile | null> {

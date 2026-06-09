@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
+import { DEMO } from '@/demo/demo';
 
 /**
  * Logs a `scroll_events` row each time a video stops being the active item,
@@ -15,7 +16,7 @@ export function useScrollLogger() {
   const flush = useCallback(() => {
     const c = current.current;
     current.current = null;
-    if (!c || !userId) return;
+    if (DEMO || !c || !userId) return;
     const duration = (performance.now() - c.startedAt) / 1000;
     if (duration < 0.5) return; // ignore quick fly-bys
     void supabase

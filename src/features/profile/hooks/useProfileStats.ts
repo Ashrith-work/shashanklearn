@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
+import { DEMO, demoStats } from '@/demo/demo';
 import type { InteractionType, VideoType } from '@/types';
 
 export interface VideoLite {
@@ -51,6 +52,11 @@ export function useProfileStats() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (DEMO) {
+      setStats(demoStats);
+      setLoading(false);
+      return;
+    }
     if (!userId) return;
     let active = true;
 

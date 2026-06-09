@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
+import { DEMO } from '@/demo/demo';
 
 /**
  * Upserts a row in `video_progress` (unique on user_id + video_id). Callers
@@ -11,7 +12,7 @@ export function useVideoProgress() {
 
   const saveProgress = useCallback(
     async (videoId: string, watchedPct: number, completed: boolean) => {
-      if (!userId) return;
+      if (DEMO || !userId) return;
       const { error } = await supabase.from('video_progress').upsert(
         {
           user_id: userId,

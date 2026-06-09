@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { DEMO, demoLiveClasses } from '@/demo/demo';
 import type { LiveClassPublic } from '@/types';
 
 interface GroupedClasses {
@@ -20,6 +21,11 @@ export function useLiveClasses() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (DEMO) {
+      setClasses(demoLiveClasses);
+      setLoading(false);
+      return;
+    }
     let active = true;
 
     async function load() {

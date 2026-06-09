@@ -1,8 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { DEMO } from '@/demo/demo';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// In demo mode the app never calls Supabase (hooks serve mock data), so fall
+// back to harmless placeholders instead of throwing on missing env.
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL || (DEMO ? 'https://demo.supabase.co' : '');
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || (DEMO ? 'demo-anon-key' : '');
 
 if (!supabaseUrl || !supabaseAnonKey) {
   // Fail loud in dev so a missing .env is obvious immediately.

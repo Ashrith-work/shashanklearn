@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { DEMO } from '@/demo/demo';
 
 export interface ChatMessage {
   id: string;
@@ -20,6 +21,13 @@ export function useLiveChat(roomKey: string, displayName: string) {
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
+    if (DEMO) {
+      setParticipants(1);
+      setMessages([
+        { id: 'm1', user: 'Instructor', text: 'Welcome to the live class! 👋', at: 0 },
+      ]);
+      return;
+    }
     const channel = supabase.channel(`live:${roomKey}`, {
       config: { broadcast: { self: true }, presence: { key: displayName } },
     });
@@ -46,15 +54,20 @@ export function useLiveChat(roomKey: string, displayName: string) {
 
   const send = useCallback(
     (text: string) => {
-      const channel = channelRef.current;
       const trimmed = text.trim();
-      if (!channel || !trimmed) return;
+      if (!trimmed) return;
       const message: ChatMessage = {
         id: crypto.randomUUID(),
         user: displayName,
         text: trimmed,
         at: Date.now(),
       };
+      if (DEMO) {
+        setMessages((prev) => [...prev, message]);
+        return;
+      }
+      const channel = channelRef.current;
+      if (!channel) return;
       channel.send({ type: 'broadcast', event: 'message', payload: message });
     },
     [displayName]

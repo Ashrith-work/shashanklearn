@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { CloseIcon } from '@/components/icons';
+import { DEMO, demoComments } from '@/demo/demo';
 import type { FeedVideo } from '@/types';
 
 interface CommentRow {
@@ -29,6 +30,18 @@ export default function CommentsSheet({
   const [sending, setSending] = useState(false);
 
   async function load() {
+    if (DEMO) {
+      setComments(
+        demoComments.map((c, i) => ({
+          id: `demo-c${i}`,
+          comment_text: c.text,
+          created_at: '',
+          author: { name: c.name, avatar_url: null },
+        }))
+      );
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from('interactions')
       .select('id, comment_text, created_at, author:profiles(name, avatar_url)')
@@ -46,12 +59,19 @@ export default function CommentsSheet({
   }, [video.id]);
 
   async function handleSend() {
-    if (!text.trim() || sending) return;
+    const value = text.trim();
+    if (!value || sending) return;
     setSending(true);
-    const ok = await onAddComment(video.id, text);
+    const ok = await onAddComment(video.id, value);
     setSending(false);
-    if (ok) {
-      setText('');
+    if (!ok) return;
+    setText('');
+    if (DEMO) {
+      setComments((prev) => [
+        { id: crypto.randomUUID(), comment_text: value, created_at: '', author: { name: 'You', avatar_url: null } },
+        ...prev,
+      ]);
+    } else {
       await load();
     }
   }

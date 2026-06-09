@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { DEMO, demoQuiz } from '@/demo/demo';
 import type { Json, QuizOptions } from '@/types';
 
 export interface QuizResult {
@@ -30,6 +31,15 @@ export function useQuiz(videoId: string) {
   const [result, setResult] = useState<QuizResult | null>(null);
 
   useEffect(() => {
+    if (DEMO) {
+      setQuiz(
+        demoQuiz.videoId === videoId
+          ? { id: demoQuiz.id, question: demoQuiz.question, options: demoQuiz.options }
+          : null
+      );
+      setLoading(false);
+      return;
+    }
     let active = true;
     (async () => {
       const { data, error } = await supabase
@@ -54,6 +64,14 @@ export function useQuiz(videoId: string) {
 
   async function submit(selectedIndex: number): Promise<QuizResult | null> {
     if (!quiz || submitting) return null;
+    if (DEMO) {
+      const graded: QuizResult = {
+        isCorrect: selectedIndex === demoQuiz.correctIndex,
+        correctIndex: demoQuiz.correctIndex,
+      };
+      setResult(graded);
+      return graded;
+    }
     setSubmitting(true);
     const { data, error } = await supabase.rpc('submit_quiz_answer', {
       p_quiz_id: quiz.id,
