@@ -5,11 +5,11 @@
 update public.profiles
 set role = 'admin'
 where id = (
-  select id from auth.users where email = 'ashrith@socialhippi.com'
+  select id from auth.users where email = 'you@example.com'
 );
 
 -- Verify:
 select p.role, u.email
 from public.profiles p
 join auth.users u on u.id = p.id
-where u.email = 'ashrith@socialhippi.com';
+where u.email = 'you@example.com';
